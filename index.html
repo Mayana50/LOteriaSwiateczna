@@ -50,12 +50,8 @@
         }
 
         @keyframes fall {
-            0% {
-                transform: translateY(0) rotate(0deg);
-            }
-            100% {
-                transform: translateY(105vh) rotate(360deg);
-            }
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(105vh) rotate(360deg); }
         }
 
         /* Glassmorphism effects */
@@ -74,10 +70,7 @@
         }
 
         /* Present Box 3D Interactive Animation */
-        .gift-container {
-            perspective: 1000px;
-        }
-
+        .gift-container { perspective: 1000px; }
         .gift-box {
             position: relative;
             width: 180px;
@@ -87,10 +80,7 @@
             transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
-
-        .gift-box:hover {
-            transform: scale(1.05) rotateY(10deg);
-        }
+        .gift-box:hover { transform: scale(1.05) rotateY(10deg); }
 
         .gift-body {
             position: absolute;
@@ -105,7 +95,6 @@
             border: 2px solid #fef08a;
         }
 
-        /* Ribbon */
         .gift-body::before {
             content: '';
             position: absolute;
@@ -166,40 +155,19 @@
             border-radius: 50% 50% 0 50%;
             top: 5px;
         }
-
-        .bow::before {
-            left: 0;
-            transform: rotate(45deg);
-        }
-
-        .bow::after {
-            right: 0;
-            transform: rotate(-45deg) scaleX(-1);
-        }
+        .bow::before { left: 0; transform: rotate(45deg); }
+        .bow::after { right: 0; transform: rotate(-45deg) scaleX(-1); }
 
         .gift-open .gift-lid {
             transform: translateY(-120px) rotate(-20deg) scale(0.9);
             opacity: 0;
         }
+        .gift-open .gift-box { animation: pulse 1s infinite alternate; }
 
-        .gift-open .gift-box {
-            animation: pulse 1s infinite alternate;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(234, 179, 8, 0.4);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(234, 179, 8, 0.7);
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(234, 179, 8, 0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(234, 179, 8, 0.7); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col justify-between items-center p-4 sm:p-6">
@@ -221,47 +189,56 @@
     <!-- MAIN CONTAINER -->
     <main class="w-full max-w-4xl z-10 my-auto">
 
-        <!-- VIEW 1: ORGANIZER PANEL (Domyślny widok tworzenia i zarządzania) -->
+        <!-- VIEW 1: ORGANIZER PANEL -->
         <div id="organizer-view" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-8">
             
-            <!-- Opis i Instrukcja -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-amber-500/20 pb-6">
                 <div>
                     <h2 class="text-xl sm:text-2xl font-bold text-amber-300 font-serif-title flex items-center gap-2">
                         <i class="fa-solid fa-sliders text-amber-400"></i> Panel Organizatora
                     </h2>
                     <p class="text-slate-300 text-sm mt-1">
-                        Zarządzaj listą uczestników i regułami. Wygeneruj bezpieczne linki i wyślij je bliskim.
+                        Zarządzaj listą uczestników, regułami i wygeneruj bezpieczne linki.
                     </p>
                 </div>
-                <button onclick="generateDraw()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/40 hover:shadow-emerald-700/50 transition duration-200 flex items-center justify-center gap-2 transform active:scale-95 border border-emerald-400/30">
+                <button onclick="generateDraw()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/40 transition duration-200 flex items-center justify-center gap-2 transform active:scale-95 border border-emerald-400/30">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
                     <span>Wygeneruj Nowe Losowanie</span>
                 </button>
             </div>
 
-            <!-- Reguły i Wykluczenia Overview -->
+            <!-- Zarządzanie Uczestnikami -->
+            <div class="glass-card p-5 rounded-2xl border border-amber-500/15 space-y-4">
+                <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-users text-amber-400"></i> Lista Uczestników (<span id="count-badge">0</span>)
+                </h3>
+                
+                <!-- Dodawanie nowego -->
+                <div class="flex gap-2">
+                    <input type="text" id="new-participant-input" placeholder="Wpisz imię uczestnika..." class="flex-1 bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 transition" onkeypress="handleKeyPress(event)">
+                    <button onclick="addParticipant()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Dodaj
+                    </button>
+                </div>
+
+                <!-- Chipy uczestników -->
+                <div id="participants-chips" class="flex flex-wrap gap-2 pt-2">
+                    <!-- Generowane dynamicznie przez JS -->
+                </div>
+            </div>
+
+            <!-- Podgląd Reguł i Wykluczeń -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="glass-card p-4 rounded-2xl border border-amber-500/10">
                     <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
                         <i class="fa-solid fa-users-slash text-red-400"></i> Grupy Wykluczone (Wzajemnie)
                     </h3>
                     <ul class="text-xs space-y-1.5 text-slate-300">
-                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
-                            <span class="text-amber-400 font-bold">Grupa 1:</span> Tomek, Kasia, Maja, Kuba
-                        </li>
-                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
-                            <span class="text-amber-400 font-bold">Grupa 2:</span> Marcin, Monika
-                        </li>
-                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
-                            <span class="text-amber-400 font-bold">Grupa 3:</span> Agnieszka, Mateusz
-                        </li>
-                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
-                            <span class="text-amber-400 font-bold">Grupa 4:</span> Leszek, Halina
-                        </li>
-                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
-                            <span class="text-amber-400 font-bold">Grupa 5:</span> Kuba, Ola
-                        </li>
+                        <li class="bg-slate-900/40 p-2 rounded-lg border border-slate-700/50"><span class="text-amber-400 font-bold">Grupa A:</span> Tomek, Kasia, Maja, Kuba</li>
+                        <li class="bg-slate-900/40 p-2 rounded-lg border border-slate-700/50"><span class="text-amber-400 font-bold">Grupa B:</span> Marcin, Monika</li>
+                        <li class="bg-slate-900/40 p-2 rounded-lg border border-slate-700/50"><span class="text-amber-400 font-bold">Grupa C:</span> Agnieszka, Mateusz</li>
+                        <li class="bg-slate-900/40 p-2 rounded-lg border border-slate-700/50"><span class="text-amber-400 font-bold">Grupa D:</span> Leszek, Halina</li>
+                        <li class="bg-slate-900/40 p-2 rounded-lg border border-slate-700/50"><span class="text-amber-400 font-bold">Grupa E:</span> Kuba, Ola</li>
                     </ul>
                 </div>
 
@@ -277,36 +254,34 @@
                     </div>
                     <div class="bg-amber-950/30 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200/90 flex items-start gap-2">
                         <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5"></i>
-                        <span>Wyniki są szyfrowane algorytmem <strong>AES-CBC</strong>. Odbiorcy z linku zobaczą <u>wyłącznie</u> swoją wylosowaną osobę!</span>
+                        <span>Wyniki są szyfrowane w linku. Odbiorcy widzą <u>wyłącznie</u> swoją wylosowaną osobę!</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Sekcja wyników i wygenerowanych linków -->
+            <!-- Sekcja wyników -->
             <div id="results-section" class="space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-link text-emerald-400"></i> Unikalne Linki dla Uczestników (<span id="participant-count">0</span>)
+                        <i class="fa-solid fa-link text-emerald-400"></i> Unikalne Linki dla Uczestników
                     </h3>
                     <div id="draw-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
                         Brak aktywnych losowań
                     </div>
                 </div>
 
-                <!-- Lista uczestników i przyciski do kopiowania -->
                 <div id="links-container" class="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1">
                     <div class="text-center py-12 text-slate-400 glass-card rounded-2xl border-dashed border-2 border-slate-700">
                         <i class="fa-solid fa-gift text-4xl mb-3 text-amber-400/50 animate-bounce"></i>
-                        <p class="text-base font-medium">Kliknij "Wygeneruj Nowe Losowanie", aby utworzyć unikalne linki.</p>
+                        <p class="text-base font-medium">Skonfiguruj listę uczestników i kliknij "Wygeneruj Nowe Losowanie".</p>
                     </div>
                 </div>
             </div>
 
         </div>
 
-        <!-- VIEW 2: PARTICIPANT VIEW (Gdy wchodzimy z linku np. ?person=...&data=...) -->
+        <!-- VIEW 2: PARTICIPANT VIEW -->
         <div id="participant-view" class="hidden glass-panel rounded-3xl p-6 sm:p-10 text-center space-y-8 max-w-xl mx-auto border-2 border-amber-400/30 shadow-2xl">
-            
             <div>
                 <span class="text-xs uppercase tracking-widest text-amber-400 font-bold bg-amber-950/60 px-4 py-1.5 rounded-full border border-amber-500/30">
                     Witaj w świątecznej zabawie!
@@ -319,7 +294,6 @@
                 </p>
             </div>
 
-            <!-- Interaktywny Prezent -->
             <div id="gift-box-wrapper" class="py-6 gift-container">
                 <div id="interactive-gift" onclick="revealTarget()" class="gift-box">
                     <div class="bow"></div>
@@ -333,18 +307,15 @@
                 </p>
             </div>
 
-            <!-- Karta Wyniku (Odsłaniana po kliknięciu) -->
             <div id="result-card" class="hidden glass-card p-6 sm:p-8 rounded-2xl border border-amber-400/40 space-y-4 transform transition-all duration-700 scale-95 opacity-0 bg-gradient-to-b from-amber-950/40 to-red-950/40">
                 <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-amber-300">
                     Osoba, dla której przygotowujesz prezent to:
                 </p>
-                
                 <div class="py-4 border-y border-amber-500/30">
                     <span id="target-name" class="text-3xl sm:text-5xl font-black font-serif-title text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-100 tracking-wide drop-shadow-lg">
                         ???
                     </span>
                 </div>
-
                 <div class="text-xs text-slate-300 space-y-2 pt-2">
                     <p class="flex items-center justify-center gap-1.5 text-emerald-300 font-medium">
                         <i class="fa-solid fa-user-secret"></i> Zachowaj tę informację w tajemnicy!
@@ -352,7 +323,6 @@
                     <p class="text-slate-400">Wesołych Świąt i udanego wybierania upominku! 🎁✨</p>
                 </div>
             </div>
-
         </div>
 
     </main>
@@ -362,18 +332,18 @@
         Secret Santa App &bull; Wszystkie dane szyfrowane lokalnie w Twojej przeglądarce 🎄
     </footer>
 
-    <!-- Modal Informacyjny / Komunikaty -->
+    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-slate-900 border border-amber-500/40 text-amber-200 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
             <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-            <span id="toast-message" class="text-sm font-medium">Pomyślnie skopiowano do schowka!</span>
+            <span id="toast-message" class="text-sm font-medium">Sukces!</span>
         </div>
     </div>
 
-    <!-- LOGIKA APLIKACJI ALORYTM SZYFROWANIA I INTERFEJS -->
+    <!-- LOGIC -->
     <script>
-        // LISTA UCZESTNIKÓW I WYKLUCZEŃ
-        const PARTICIPANTS = [
+        // Domyślna lista uczestników
+        let participants = [
             'Tomek', 'Kasia', 'Maja', 'Kuba', 
             'Marcin', 'Monika', 
             'Agnieszka', 'Mateusz', 
@@ -390,21 +360,17 @@
             ['Kuba', 'Ola']
         ];
 
-        // Wykluczenia jednostronne (dawca -> niedozwolony biorca)
+        // Wykluczenia jednostronne
         const DIRECTED_EXCLUSIONS = {
             'Marcin': ['Mateusz']
         };
 
-        // Krypto Przechowywanie
         let currentDrawData = null;
 
-        // --- EFEKT ŚNIEGU ---
         function initSnow() {
             const container = document.getElementById('snow-container');
-            const flakeCount = 45;
             const flakes = ['❄', '❅', '❆', '•'];
-
-            for (let i = 0; i < flakeCount; i++) {
+            for (let i = 0; i < 45; i++) {
                 const flake = document.createElement('div');
                 flake.className = 'snowflake';
                 flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
@@ -417,19 +383,76 @@
             }
         }
 
+        // --- ZARZĄDZANIE UCZESTNIKAMI ---
+        function renderParticipantsList() {
+            const container = document.getElementById('participants-chips');
+            const countBadge = document.getElementById('count-badge');
+            container.innerHTML = '';
+            countBadge.textContent = participants.length;
+
+            if (participants.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 italic">Brak uczestników. Dodaj kogoś powyżej!</p>`;
+                return;
+            }
+
+            participants.forEach((name, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'inline-flex items-center gap-2 bg-slate-900/70 border border-amber-500/30 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-200 shadow-sm animate-fadeIn';
+                chip.innerHTML = `
+                    <span>${name}</span>
+                    <button onclick="removeParticipant(${index})" class="text-red-400 hover:text-red-300 transition p-0.5" title="Usuń uczestnika">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        function addParticipant() {
+            const input = document.getElementById('new-participant-input');
+            const name = input.value.trim();
+
+            if (!name) {
+                showToast("Wpisz imię uczestnika!", true);
+                return;
+            }
+
+            // Normalizacja imienia (pierwsza litera wielka)
+            const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+
+            if (participants.includes(formattedName)) {
+                showToast("Ta osoba jest już na liście!", true);
+                return;
+            }
+
+            participants.push(formattedName);
+            input.value = '';
+            renderParticipantsList();
+            showToast(`Dodano: ${formattedName}`);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addParticipant();
+            }
+        }
+
+        function removeParticipant(index) {
+            const removed = participants.splice(index, 1);
+            renderParticipantsList();
+            showToast(`Usunięto: ${removed}`);
+        }
+
         // --- ALGORYTM LOSOWANIA ---
         function isExcluded(giver, receiver) {
-            // Nikt nie może wylosować samego siebie
             if (giver === receiver) return true;
 
-            // Sprawdzenie grup wykluczeń (dwustronne)
             for (const group of EXCLUSION_GROUPS) {
                 if (group.includes(giver) && group.includes(receiver)) {
                     return true;
                 }
             }
 
-            // Sprawdzenie wykluczeń jednostronnych
             if (DIRECTED_EXCLUSIONS[giver] && DIRECTED_EXCLUSIONS[giver].includes(receiver)) {
                 return true;
             }
@@ -437,15 +460,14 @@
             return false;
         }
 
-        // Algorytm próbuj-i-sprawdzaj (Monte Carlo z Tasowaniem)
         function generateValidPairs() {
+            if (participants.length < 2) return null;
             const maxAttempts = 5000;
             
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                let givers = [...PARTICIPANTS];
-                let receivers = [...PARTICIPANTS];
+                let givers = [...participants];
+                let receivers = [...participants];
                 
-                // Tasowanie odbiorców (Fisher-Yates)
                 for (let i = receivers.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [receivers[i], receivers[j]] = [receivers[j], receivers[i]];
@@ -465,21 +487,14 @@
                     pairs[giver] = receiver;
                 }
 
-                if (valid) {
-                    return pairs; // Znaleziono prawidłowe przypisanie!
-                }
+                if (valid) return pairs;
             }
-            return null; // Nie udało się w podanej liczbie prób
+            return null;
         }
 
-        // --- SZYFROWANIE Z KORZYSTANIEM Z CRYPTO API (AES-GCM/CBC) ---
-        // Generujemy unikalny klucz dla całego losowania, a w URL podajemy zaszyfrowaną wiadomość i klucz
+        // --- SZYFROWANIE KRYPTO ---
         async function generateKey() {
-            return await crypto.subtle.generateKey(
-                { name: "AES-GCM", length: 256 },
-                true,
-                ["encrypt", "decrypt"]
-            );
+            return await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
         }
 
         async function exportKey(key) {
@@ -489,35 +504,23 @@
 
         async function importKey(keyB64) {
             const binaryDer = Uint8Array.from(atob(keyB64), c => c.charCodeAt(0));
-            return await crypto.subtle.importKey(
-                "raw",
-                binaryDer,
-                "AES-GCM",
-                true,
-                ["encrypt", "decrypt"]
-            );
+            return await crypto.subtle.importKey("raw", binaryDer, "AES-GCM", true, ["encrypt", "decrypt"]);
         }
 
         async function encryptData(data, key) {
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const encoded = new TextEncoder().encode(JSON.stringify(data));
-            const ciphertext = await crypto.subtle.encrypt(
-                { name: "AES-GCM", iv: iv },
-                key,
-                encoded
-            );
+            const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, encoded);
 
-            // Łączymy IV i Ciphertext
             const combined = new Uint8Array(iv.length + ciphertext.byteLength);
             combined.set(iv, 0);
             combined.set(new Uint8Array(ciphertext), iv.length);
 
             return btoa(String.fromCharCode(...combined))
-                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); // Base64URL
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
         }
 
         async function decryptData(encodedData, key) {
-            // Dekodowanie z Base64URL
             let base64 = encodedData.replace(/-/g, '+').replace(/_/g, '/');
             while (base64.length % 4) base64 += '=';
             const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
@@ -525,61 +528,44 @@
             const iv = binary.slice(0, 12);
             const ciphertext = binary.slice(12);
 
-            const decrypted = await crypto.subtle.decrypt(
-                { name: "AES-GCM", iv: iv },
-                key,
-                ciphertext
-            );
-
+            const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ciphertext);
             return JSON.parse(new TextDecoder().decode(decrypted));
         }
 
-        // --- GENEROWANIE LOSOWANIA I BUDOWANIE LINKÓW ---
+        // --- GENEROWANIE LINKÓW ---
         async function generateDraw() {
-            const pairs = generateValidPairs();
-            
-            if (!pairs) {
-                showToast("Nie udało się znaleźć wariantu losowania! Sprawdź reguły.", true);
+            if (participants.length < 3) {
+                showToast("Potrzebujesz przynajmniej 3 uczestników do losowania!", true);
                 return;
             }
 
-            // Utwórz nowy klucz szyfrujący dla tego losowania
+            const pairs = generateValidPairs();
+            if (!pairs) {
+                showToast("Nie udało się ułożyć par przy tych regułach i liście osób!", true);
+                return;
+            }
+
             const cryptoKey = await generateKey();
             const exportedKey = await exportKey(cryptoKey);
-
-            // Przygotuj zbiór linków
             const baseUrl = window.location.origin + window.location.pathname;
             const links = [];
 
-            for (const giver of PARTICIPANTS) {
-                const payload = {
-                    giver: giver,
-                    receiver: pairs[giver]
-                };
-
+            for (const giver of participants) {
+                const payload = { giver: giver, receiver: pairs[giver] };
                 const encrypted = await encryptData(payload, cryptoKey);
-                // URL zawiera nazwisko uczestnika (dla personalizacji), tajną paczkę danych oraz klucz
                 const link = `${baseUrl}?p=${encodeURIComponent(giver)}&d=${encrypted}&k=${encodeURIComponent(exportedKey)}`;
                 
-                links.push({
-                    giver: giver,
-                    receiver: pairs[giver],
-                    link: link
-                });
+                links.push({ giver: giver, link: link });
             }
 
             renderLinks(links);
             showToast("Nowe losowanie zakończone sukcesem!");
         }
 
-        // --- RENDEROWANIE PANELU ORGANIZATORA ---
         function renderLinks(links) {
             const container = document.getElementById('links-container');
-            const countEl = document.getElementById('participant-count');
             const statusEl = document.getElementById('draw-status');
-
             container.innerHTML = '';
-            countEl.textContent = links.length;
 
             statusEl.textContent = 'Losowanie Aktywne';
             statusEl.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40';
@@ -587,7 +573,6 @@
             links.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'glass-card p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 hover:border-amber-500/30 transition';
-
                 const waMessage = encodeURIComponent(`Cześć ${item.giver}! 🎄 Wejdź w poniższy link, aby sprawdzić kogo wylosowałeś/aś w tegorocznym Secret Santa:\n\n${item.link}`);
 
                 card.innerHTML = `
@@ -600,7 +585,6 @@
                             <span class="text-xs text-slate-400">Gotowy unikalny link</span>
                         </div>
                     </div>
-                    
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <button onclick="copyToClipboard('${item.link}')" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold rounded-xl border border-amber-500/20 transition flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-copy"></i> Kopiuj Link
@@ -614,7 +598,7 @@
             });
         }
 
-        // --- DEKODOWANIE WIDOKU UCZESTNIKA ---
+        // --- WIDOK UCZESTNIKA ---
         async function checkParticipantView() {
             const urlParams = new URLSearchParams(window.location.search);
             const person = urlParams.get('p');
@@ -622,51 +606,37 @@
             const key = urlParams.get('k');
 
             if (person && data && key) {
-                // Pokazujemy widok uczestnika
                 document.getElementById('organizer-view').classList.add('hidden');
                 document.getElementById('participant-view').classList.remove('hidden');
-
                 document.getElementById('participant-name').textContent = person;
 
                 try {
                     const cryptoKey = await importKey(key);
                     const decrypted = await decryptData(data, cryptoKey);
-
                     if (decrypted.giver === person) {
                         currentDrawData = decrypted;
                     } else {
-                        throw new Error("Błąd weryfikacji danych");
+                        throw new Error();
                     }
                 } catch (e) {
-                    console.error(e);
                     document.getElementById('gift-hint').textContent = "⚠️ Nieprawidłowy lub uszkodzony link losowania!";
                     document.getElementById('interactive-gift').onclick = null;
                 }
             }
         }
 
-        // --- ODSŁONIĘCIE WYNIKU Z ANIMACJĄ ---
         function revealTarget() {
             if (!currentDrawData) return;
-
             const giftWrapper = document.getElementById('gift-box-wrapper');
             const resultCard = document.getElementById('result-card');
             const targetNameEl = document.getElementById('target-name');
 
-            // Uruchomienie animacji otwierania prezentu
             giftWrapper.classList.add('gift-open');
-
-            // Efekt Confetti
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
             setTimeout(() => {
                 giftWrapper.classList.add('hidden');
                 targetNameEl.textContent = currentDrawData.receiver;
-
                 resultCard.classList.remove('hidden');
                 setTimeout(() => {
                     resultCard.classList.remove('scale-95', 'opacity-0');
@@ -675,7 +645,6 @@
             }, 600);
         }
 
-        // --- POMOCNICZE TOASTY I KOPIOWANIE ---
         function copyToClipboard(text) {
             const tempInput = document.createElement("input");
             tempInput.value = text;
@@ -683,7 +652,6 @@
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-
             showToast("Skopiowano link do schowka!");
         }
 
@@ -693,11 +661,7 @@
             const toastIcon = document.getElementById('toast-icon');
 
             toastMsg.textContent = message;
-            if (isError) {
-                toastIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-lg";
-            } else {
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
-            }
+            toastIcon.className = isError ? "fa-solid fa-circle-exclamation text-red-400 text-lg" : "fa-solid fa-circle-check text-emerald-400 text-lg";
 
             toast.classList.remove('translate-y-20', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
@@ -708,9 +672,9 @@
             }, 3000);
         }
 
-        // INIT
         window.onload = function() {
             initSnow();
+            renderParticipantsList();
             checkParticipantView();
         };
     </script>
