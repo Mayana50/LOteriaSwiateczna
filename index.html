@@ -198,7 +198,7 @@
                         <i class="fa-solid fa-sliders text-amber-400"></i> Panel Organizatora
                     </h2>
                     <p class="text-slate-300 text-sm mt-1">
-                        Zablokowana lista 14 uczestników. Kliknij poniżej, aby wygenerować linki!
+                        Stała lista 14 uczestników. Kliknij poniżej, aby wygenerować linki!
                     </p>
                 </div>
                 <button onclick="generateDraw()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/40 transition duration-200 flex items-center justify-center gap-2 transform active:scale-95 border border-emerald-400/30">
@@ -207,17 +207,17 @@
                 </button>
             </div>
 
-            <!-- Sztywna Lista Uczestników (14 osób) -->
+            <!-- Stała Lista Uczestników (Zamiast pola dodawania) -->
             <div class="glass-card p-5 rounded-2xl border border-amber-500/15 space-y-3">
                 <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-users text-amber-400"></i> Stała lista uczestników (14 osób):
+                    <i class="fa-solid fa-users text-amber-400"></i> Lista uczestników (<span id="count-badge">14</span>)
                 </h3>
                 <div id="participants-chips" class="flex flex-wrap gap-2 pt-1">
-                    <!-- Wygenerowane dynamicznie w JS -->
+                    <!-- Wygenerowane dynamicznie na stałe -->
                 </div>
             </div>
 
-            <!-- Reguły i Wykluczenia Overview -->
+            <!-- Podgląd Reguł i Wykluczeń -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="glass-card p-4 rounded-2xl border border-amber-500/10">
                     <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -263,7 +263,7 @@
                 <div id="links-container" class="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1">
                     <div class="text-center py-12 text-slate-400 glass-card rounded-2xl border-dashed border-2 border-slate-700">
                         <i class="fa-solid fa-gift text-4xl mb-3 text-amber-400/50 animate-bounce"></i>
-                        <p class="text-base font-medium">Kliknij "Wygeneruj Nowe Losowanie", aby wyświetlić linki dla wszystkich.</p>
+                        <p class="text-base font-medium">Kliknij "Wygeneruj Nowe Losowanie", aby utworzyć równe pary dla wszystkich.</p>
                     </div>
                 </div>
             </div>
@@ -332,7 +332,7 @@
 
     <!-- LOGIC -->
     <script>
-        // STAŁA LISTA 14 UCZESTNIKÓW (brak możliwości dodawania/usuwania)
+        // STAŁA LISTA DOKŁADNIE 14 UCZESTNIKÓW
         const PARTICIPANTS = [
             'Tomek', 'Kasia', 'Maja', 'Kuba', 
             'Marcin', 'Monika', 
@@ -374,12 +374,13 @@
             }
         }
 
-        function renderParticipantsChips() {
+        // Wyświetlenie statycznej listy uczestników
+        function renderParticipantsList() {
             const container = document.getElementById('participants-chips');
             container.innerHTML = '';
             PARTICIPANTS.forEach(name => {
-                const chip = document.createElement('span');
-                chip.className = 'inline-block bg-slate-900/70 border border-amber-500/30 px-3 py-1 rounded-xl text-xs font-semibold text-amber-200 shadow-sm';
+                const chip = document.createElement('div');
+                chip.className = 'inline-block bg-slate-900/70 border border-amber-500/30 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-200 shadow-sm';
                 chip.textContent = name;
                 container.appendChild(chip);
             });
@@ -403,7 +404,7 @@
         }
 
         function generateValidPairs() {
-            const maxAttempts = 50000; // Zwiększone próby, aby algorytm zawsze znalazł parę przy 14 osobach
+            const maxAttempts = 50000;
             
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
                 let givers = [...PARTICIPANTS];
@@ -610,7 +611,7 @@
 
         window.onload = function() {
             initSnow();
-            renderParticipantsChips();
+            renderParticipantsList();
             checkParticipantView();
         };
     </script>
