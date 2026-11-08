@@ -198,7 +198,7 @@
                         <i class="fa-solid fa-sliders text-amber-400"></i> Panel Organizatora
                     </h2>
                     <p class="text-slate-300 text-sm mt-1">
-                        Zarządzaj listą uczestników, regułami i wygeneruj bezpieczne linki.
+                        Wszystkie 14 osób na liście. Kliknij przycisk, aby wygenerować równe pary!
                     </p>
                 </div>
                 <button onclick="generateDraw()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/40 transition duration-200 flex items-center justify-center gap-2 transform active:scale-95 border border-emerald-400/30">
@@ -207,27 +207,17 @@
                 </button>
             </div>
 
-            <!-- Zarządzanie Uczestnikami -->
-            <div class="glass-card p-5 rounded-2xl border border-amber-500/15 space-y-4">
+            <!-- Podgląd Uczestników (Sztywna lista 14 osób) -->
+            <div class="glass-card p-5 rounded-2xl border border-amber-500/15 space-y-3">
                 <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-users text-amber-400"></i> Lista Uczestników (<span id="count-badge">0</span>)
+                    <i class="fa-solid fa-users text-amber-400"></i> Uczestnicy w tej edycji (14 osób):
                 </h3>
-                
-                <!-- Dodawanie nowego -->
-                <div class="flex gap-2">
-                    <input type="text" id="new-participant-input" placeholder="Wpisz imię uczestnika..." class="flex-1 bg-slate-900/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 transition" onkeypress="handleKeyPress(event)">
-                    <button onclick="addParticipant()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center gap-1.5 shadow-md">
-                        <i class="fa-solid fa-plus"></i> Dodaj
-                    </button>
-                </div>
-
-                <!-- Chipy uczestników -->
-                <div id="participants-chips" class="flex flex-wrap gap-2 pt-2">
-                    <!-- Generowane dynamicznie przez JS -->
+                <div id="participants-chips" class="flex flex-wrap gap-2 pt-1">
+                    <!-- Wygenerowane statycznie w JS -->
                 </div>
             </div>
 
-            <!-- Podgląd Reguł i Wykluczeń -->
+            <!-- Reguły i Wykluczenia Overview -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="glass-card p-4 rounded-2xl border border-amber-500/10">
                     <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
@@ -254,7 +244,7 @@
                     </div>
                     <div class="bg-amber-950/30 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200/90 flex items-start gap-2">
                         <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5"></i>
-                        <span>Wyniki są szyfrowane w linku. Odbiorcy widzą <u>wyłącznie</u> swoją wylosowaną osobę!</span>
+                        <span>Każdy dostaje dokładnie 1 link i kupuje 1 prezent!</span>
                     </div>
                 </div>
             </div>
@@ -263,7 +253,7 @@
             <div id="results-section" class="space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-link text-emerald-400"></i> Unikalne Linki dla Uczestników
+                        <i class="fa-solid fa-link text-emerald-400"></i> Unikalne Linki dla Wszystkich 14 Uczestników
                     </h3>
                     <div id="draw-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
                         Brak aktywnych losowań
@@ -273,7 +263,7 @@
                 <div id="links-container" class="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1">
                     <div class="text-center py-12 text-slate-400 glass-card rounded-2xl border-dashed border-2 border-slate-700">
                         <i class="fa-solid fa-gift text-4xl mb-3 text-amber-400/50 animate-bounce"></i>
-                        <p class="text-base font-medium">Skonfiguruj listę uczestników i kliknij "Wygeneruj Nowe Losowanie".</p>
+                        <p class="text-base font-medium">Kliknij "Wygeneruj Nowe Losowanie", aby utworzyć równe pary dla wszystkich 14 osób.</p>
                     </div>
                 </div>
             </div>
@@ -342,13 +332,13 @@
 
     <!-- LOGIC -->
     <script>
-        // Domyślna lista uczestników
-        let participants = [
+        // SZTYWNA LISTA DOKŁADNIE 14 UCZESTNIKÓW
+        const PARTICIPANTS = [
             'Tomek', 'Kasia', 'Maja', 'Kuba', 
             'Marcin', 'Monika', 
             'Agnieszka', 'Mateusz', 
             'Leszek', 'Halina', 
-            'Ola'
+            'Ola',
             'Marek', 'Małgosia', 'Adam'
         ];
 
@@ -384,64 +374,15 @@
             }
         }
 
-        // --- ZARZĄDZANIE UCZESTNIKAMI ---
-        function renderParticipantsList() {
+        function renderParticipantsChips() {
             const container = document.getElementById('participants-chips');
-            const countBadge = document.getElementById('count-badge');
             container.innerHTML = '';
-            countBadge.textContent = participants.length;
-
-            if (participants.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 italic">Brak uczestników. Dodaj kogoś powyżej!</p>`;
-                return;
-            }
-
-            participants.forEach((name, index) => {
-                const chip = document.createElement('div');
-                chip.className = 'inline-flex items-center gap-2 bg-slate-900/70 border border-amber-500/30 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-amber-200 shadow-sm animate-fadeIn';
-                chip.innerHTML = `
-                    <span>${name}</span>
-                    <button onclick="removeParticipant(${index})" class="text-red-400 hover:text-red-300 transition p-0.5" title="Usuń uczestnika">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                `;
+            PARTICIPANTS.forEach(name => {
+                const chip = document.createElement('span');
+                chip.className = 'inline-block bg-slate-900/70 border border-amber-500/30 px-3 py-1 rounded-xl text-xs font-semibold text-amber-200 shadow-sm';
+                chip.textContent = name;
                 container.appendChild(chip);
             });
-        }
-
-        function addParticipant() {
-            const input = document.getElementById('new-participant-input');
-            const name = input.value.trim();
-
-            if (!name) {
-                showToast("Wpisz imię uczestnika!", true);
-                return;
-            }
-
-            // Normalizacja imienia (pierwsza litera wielka)
-            const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-
-            if (participants.includes(formattedName)) {
-                showToast("Ta osoba jest już na liście!", true);
-                return;
-            }
-
-            participants.push(formattedName);
-            input.value = '';
-            renderParticipantsList();
-            showToast(`Dodano: ${formattedName}`);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                addParticipant();
-            }
-        }
-
-        function removeParticipant(index) {
-            const removed = participants.splice(index, 1);
-            renderParticipantsList();
-            showToast(`Usunięto: ${removed}`);
         }
 
         // --- ALGORYTM LOSOWANIA ---
@@ -462,12 +403,11 @@
         }
 
         function generateValidPairs() {
-            if (participants.length < 2) return null;
-            const maxAttempts = 5000;
+            const maxAttempts = 15000;
             
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                let givers = [...participants];
-                let receivers = [...participants];
+                let givers = [...PARTICIPANTS];
+                let receivers = [...PARTICIPANTS];
                 
                 for (let i = receivers.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -535,14 +475,9 @@
 
         // --- GENEROWANIE LINKÓW ---
         async function generateDraw() {
-            if (participants.length < 3) {
-                showToast("Potrzebujesz przynajmniej 3 uczestników do losowania!", true);
-                return;
-            }
-
             const pairs = generateValidPairs();
             if (!pairs) {
-                showToast("Nie udało się ułożyć par przy tych regułach i liście osób!", true);
+                showToast("Nie udało się ułożyć par przy tych restrykcjach. Spróbuj ponownie!", true);
                 return;
             }
 
@@ -551,7 +486,7 @@
             const baseUrl = window.location.origin + window.location.pathname;
             const links = [];
 
-            for (const giver of participants) {
+            for (const giver of PARTICIPANTS) {
                 const payload = { giver: giver, receiver: pairs[giver] };
                 const encrypted = await encryptData(payload, cryptoKey);
                 const link = `${baseUrl}?p=${encodeURIComponent(giver)}&d=${encrypted}&k=${encodeURIComponent(exportedKey)}`;
@@ -560,7 +495,7 @@
             }
 
             renderLinks(links);
-            showToast("Nowe losowanie zakończone sukcesem!");
+            showToast("Wygenerowano dokładnie 14 unikalnych linków!");
         }
 
         function renderLinks(links) {
@@ -568,7 +503,7 @@
             const statusEl = document.getElementById('draw-status');
             container.innerHTML = '';
 
-            statusEl.textContent = 'Losowanie Aktywne';
+            statusEl.textContent = 'Wygenerowano 14 linków';
             statusEl.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40';
 
             links.forEach(item => {
@@ -583,7 +518,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-slate-100">${item.giver}</h4>
-                            <span class="text-xs text-slate-400">Gotowy unikalny link</span>
+                            <span class="text-xs text-slate-400">Unikalny link dla uczestnika</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -675,7 +610,7 @@
 
         window.onload = function() {
             initSnow();
-            renderParticipantsList();
+            renderParticipantsChips();
             checkParticipantView();
         };
     </script>
