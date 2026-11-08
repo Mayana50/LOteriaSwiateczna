@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Świąteczne Losowanie Prezentów 🎁 Secret Santa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #31102f 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .font-serif-title {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Snowfall Effect */
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: #fff;
+            user-select: none;
+            pointer-events: none;
+            animation-name: fall;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+            }
+        }
+
+        /* Glassmorphism effects */
+        .glass-panel {
+            background: rgba(30, 27, 75, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Present Box 3D Interactive Animation */
+        .gift-container {
+            perspective: 1000px;
+        }
+
+        .gift-box {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .gift-box:hover {
+            transform: scale(1.05) rotateY(10deg);
+        }
+
+        .gift-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(220, 38, 38, 0.4), inset 0 0 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fef08a;
+        }
+
+        /* Ribbon */
+        .gift-body::before {
+            content: '';
+            position: absolute;
+            width: 34px;
+            height: 100%;
+            background: linear-gradient(90deg, #fde047, #eab308, #fde047);
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+        }
+
+        .gift-body::after {
+            content: '';
+            position: absolute;
+            height: 34px;
+            width: 100%;
+            background: linear-gradient(180deg, #fde047, #eab308, #fde047);
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+        }
+
+        .gift-lid {
+            position: absolute;
+            top: -12px;
+            left: -8px;
+            width: 196px;
+            height: 45px;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 2px solid #fef08a;
+        }
+
+        .gift-lid::before {
+            content: '';
+            position: absolute;
+            width: 34px;
+            height: 100%;
+            left: 81px;
+            background: linear-gradient(90deg, #fde047, #eab308, #fde047);
+        }
+
+        .bow {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            z-index: 11;
+        }
+
+        .bow::before, .bow::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 5px solid #fde047;
+            border-radius: 50% 50% 0 50%;
+            top: 5px;
+        }
+
+        .bow::before {
+            left: 0;
+            transform: rotate(45deg);
+        }
+
+        .bow::after {
+            right: 0;
+            transform: rotate(-45deg) scaleX(-1);
+        }
+
+        .gift-open .gift-lid {
+            transform: translateY(-120px) rotate(-20deg) scale(0.9);
+            opacity: 0;
+        }
+
+        .gift-open .gift-box {
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(234, 179, 8, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(234, 179, 8, 0.7);
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between items-center p-4 sm:p-6">
+
+    <!-- Snowflakes Container -->
+    <div id="snow-container"></div>
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl text-center py-6 z-10">
+        <div class="inline-flex items-center gap-3 bg-red-950/60 border border-red-500/30 px-4 py-2 rounded-full text-red-300 text-sm font-medium mb-3 shadow-lg">
+            <i class="fa-solid fa-snowflake text-amber-300 animate-spin" style="animation-duration: 10s;"></i>
+            Magiczne Losowanie Świąteczne
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-extrabold font-serif-title tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-100 drop-shadow-md">
+            Secret Santa 🎄
+        </h1>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full max-w-4xl z-10 my-auto">
+
+        <!-- VIEW 1: ORGANIZER PANEL (Domyślny widok tworzenia i zarządzania) -->
+        <div id="organizer-view" class="glass-panel rounded-3xl p-6 sm:p-8 space-y-8">
+            
+            <!-- Opis i Instrukcja -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-amber-500/20 pb-6">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-amber-300 font-serif-title flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-400"></i> Panel Organizatora
+                    </h2>
+                    <p class="text-slate-300 text-sm mt-1">
+                        Zarządzaj listą uczestników i regułami. Wygeneruj bezpieczne linki i wyślij je bliskim.
+                    </p>
+                </div>
+                <button onclick="generateDraw()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-900/40 hover:shadow-emerald-700/50 transition duration-200 flex items-center justify-center gap-2 transform active:scale-95 border border-emerald-400/30">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                    <span>Wygeneruj Nowe Losowanie</span>
+                </button>
+            </div>
+
+            <!-- Reguły i Wykluczenia Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-4 rounded-2xl border border-amber-500/10">
+                    <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-users-slash text-red-400"></i> Grupy Wykluczone (Wzajemnie)
+                    </h3>
+                    <ul class="text-xs space-y-1.5 text-slate-300">
+                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
+                            <span class="text-amber-400 font-bold">Grupa 1:</span> Tomek, Kasia, Maja, Kuba
+                        </li>
+                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
+                            <span class="text-amber-400 font-bold">Grupa 2:</span> Marcin, Monika
+                        </li>
+                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
+                            <span class="text-amber-400 font-bold">Grupa 3:</span> Agnieszka, Mateusz
+                        </li>
+                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
+                            <span class="text-amber-400 font-bold">Grupa 4:</span> Leszek, Halina
+                        </li>
+                        <li class="flex items-center gap-2 bg-slate-900/40 p-2 rounded-lg border border-slate-700/50">
+                            <span class="text-amber-400 font-bold">Grupa 5:</span> Kuba, Ola
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card p-4 rounded-2xl border border-amber-500/10 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-ban text-red-400"></i> Dodatkowe Reguły
+                        </h3>
+                        <div class="text-xs text-slate-300 bg-red-950/30 border border-red-500/30 p-3 rounded-xl mb-3 flex items-center gap-3">
+                            <i class="fa-solid fa-user-xmark text-red-400 text-lg"></i>
+                            <span><strong>Marcin</strong> 🚫 NIE MOŻE wylosować <strong>Mateusza</strong>.</span>
+                        </div>
+                    </div>
+                    <div class="bg-amber-950/30 border border-amber-500/30 p-3 rounded-xl text-xs text-amber-200/90 flex items-start gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5"></i>
+                        <span>Wyniki są szyfrowane algorytmem <strong>AES-CBC</strong>. Odbiorcy z linku zobaczą <u>wyłącznie</u> swoją wylosowaną osobę!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sekcja wyników i wygenerowanych linków -->
+            <div id="results-section" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-link text-emerald-400"></i> Unikalne Linki dla Uczestników (<span id="participant-count">0</span>)
+                    </h3>
+                    <div id="draw-status" class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                        Brak aktywnych losowań
+                    </div>
+                </div>
+
+                <!-- Lista uczestników i przyciski do kopiowania -->
+                <div id="links-container" class="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1">
+                    <div class="text-center py-12 text-slate-400 glass-card rounded-2xl border-dashed border-2 border-slate-700">
+                        <i class="fa-solid fa-gift text-4xl mb-3 text-amber-400/50 animate-bounce"></i>
+                        <p class="text-base font-medium">Kliknij "Wygeneruj Nowe Losowanie", aby utworzyć unikalne linki.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- VIEW 2: PARTICIPANT VIEW (Gdy wchodzimy z linku np. ?person=...&data=...) -->
+        <div id="participant-view" class="hidden glass-panel rounded-3xl p-6 sm:p-10 text-center space-y-8 max-w-xl mx-auto border-2 border-amber-400/30 shadow-2xl">
+            
+            <div>
+                <span class="text-xs uppercase tracking-widest text-amber-400 font-bold bg-amber-950/60 px-4 py-1.5 rounded-full border border-amber-500/30">
+                    Witaj w świątecznej zabawie!
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold font-serif-title mt-4 text-white">
+                    Cześć <span id="participant-name" class="text-amber-300 underline decoration-amber-500/50">Uczestniku</span>! 🎄
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base mt-2">
+                    Zostałeś/aś zaproszony/a do udziału w losowaniu prezentów. Odbierz swój tajny przydział!
+                </p>
+            </div>
+
+            <!-- Interaktywny Prezent -->
+            <div id="gift-box-wrapper" class="py-6 gift-container">
+                <div id="interactive-gift" onclick="revealTarget()" class="gift-box">
+                    <div class="bow"></div>
+                    <div class="gift-lid"></div>
+                    <div class="gift-body">
+                        <i class="fa-solid fa-sparkles text-amber-200 text-3xl animate-pulse"></i>
+                    </div>
+                </div>
+                <p id="gift-hint" class="text-xs text-amber-300/80 font-medium mt-6 animate-pulse">
+                    <i class="fa-solid fa-hand-pointer mr-1"></i> Kliknij prezent, aby go otworzyć!
+                </p>
+            </div>
+
+            <!-- Karta Wyniku (Odsłaniana po kliknięciu) -->
+            <div id="result-card" class="hidden glass-card p-6 sm:p-8 rounded-2xl border border-amber-400/40 space-y-4 transform transition-all duration-700 scale-95 opacity-0 bg-gradient-to-b from-amber-950/40 to-red-950/40">
+                <p class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-amber-300">
+                    Osoba, dla której przygotowujesz prezent to:
+                </p>
+                
+                <div class="py-4 border-y border-amber-500/30">
+                    <span id="target-name" class="text-3xl sm:text-5xl font-black font-serif-title text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-100 tracking-wide drop-shadow-lg">
+                        ???
+                    </span>
+                </div>
+
+                <div class="text-xs text-slate-300 space-y-2 pt-2">
+                    <p class="flex items-center justify-center gap-1.5 text-emerald-300 font-medium">
+                        <i class="fa-solid fa-user-secret"></i> Zachowaj tę informację w tajemnicy!
+                    </p>
+                    <p class="text-slate-400">Wesołych Świąt i udanego wybierania upominku! 🎁✨</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-slate-500 z-10">
+        Secret Santa App &bull; Wszystkie dane szyfrowane lokalnie w Twojej przeglądarce 🎄
+    </footer>
+
+    <!-- Modal Informacyjny / Komunikaty -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 border border-amber-500/40 text-amber-200 px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+            <span id="toast-message" class="text-sm font-medium">Pomyślnie skopiowano do schowka!</span>
+        </div>
+    </div>
+
+    <!-- LOGIKA APLIKACJI ALORYTM SZYFROWANIA I INTERFEJS -->
+    <script>
+        // LISTA UCZESTNIKÓW I WYKLUCZEŃ
+        const PARTICIPANTS = [
+            'Tomek', 'Kasia', 'Maja', 'Kuba', 
+            'Marcin', 'Monika', 
+            'Agnieszka', 'Mateusz', 
+            'Leszek', 'Halina', 
+            'Ola'
+        ];
+
+        // Wykluczenia dwustronne (Grupy)
+        const EXCLUSION_GROUPS = [
+            ['Tomek', 'Kasia', 'Maja', 'Kuba'],
+            ['Marcin', 'Monika'],
+            ['Agnieszka', 'Mateusz'],
+            ['Leszek', 'Halina'],
+            ['Kuba', 'Ola']
+        ];
+
+        // Wykluczenia jednostronne (dawca -> niedozwolony biorca)
+        const DIRECTED_EXCLUSIONS = {
+            'Marcin': ['Mateusz']
+        };
+
+        // Krypto Przechowywanie
+        let currentDrawData = null;
+
+        // --- EFEKT ŚNIEGU ---
+        function initSnow() {
+            const container = document.getElementById('snow-container');
+            const flakeCount = 45;
+            const flakes = ['❄', '❅', '❆', '•'];
+
+            for (let i = 0; i < flakeCount; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'snowflake';
+                flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+                flake.style.left = `${Math.random() * 100}%`;
+                flake.style.fontSize = `${Math.random() * 14 + 10}px`;
+                flake.style.animationDuration = `${Math.random() * 8 + 5}s`;
+                flake.style.animationDelay = `${Math.random() * 5}s`;
+                flake.style.opacity = Math.random() * 0.7 + 0.3;
+                container.appendChild(flake);
+            }
+        }
+
+        // --- ALGORYTM LOSOWANIA ---
+        function isExcluded(giver, receiver) {
+            // Nikt nie może wylosować samego siebie
+            if (giver === receiver) return true;
+
+            // Sprawdzenie grup wykluczeń (dwustronne)
+            for (const group of EXCLUSION_GROUPS) {
+                if (group.includes(giver) && group.includes(receiver)) {
+                    return true;
+                }
+            }
+
+            // Sprawdzenie wykluczeń jednostronnych
+            if (DIRECTED_EXCLUSIONS[giver] && DIRECTED_EXCLUSIONS[giver].includes(receiver)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Algorytm próbuj-i-sprawdzaj (Monte Carlo z Tasowaniem)
+        function generateValidPairs() {
+            const maxAttempts = 5000;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                let givers = [...PARTICIPANTS];
+                let receivers = [...PARTICIPANTS];
+                
+                // Tasowanie odbiorców (Fisher-Yates)
+                for (let i = receivers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [receivers[i], receivers[j]] = [receivers[j], receivers[i]];
+                }
+
+                let valid = true;
+                let pairs = {};
+
+                for (let i = 0; i < givers.length; i++) {
+                    const giver = givers[i];
+                    const receiver = receivers[i];
+
+                    if (isExcluded(giver, receiver)) {
+                        valid = false;
+                        break;
+                    }
+                    pairs[giver] = receiver;
+                }
+
+                if (valid) {
+                    return pairs; // Znaleziono prawidłowe przypisanie!
+                }
+            }
+            return null; // Nie udało się w podanej liczbie prób
+        }
+
+        // --- SZYFROWANIE Z KORZYSTANIEM Z CRYPTO API (AES-GCM/CBC) ---
+        // Generujemy unikalny klucz dla całego losowania, a w URL podajemy zaszyfrowaną wiadomość i klucz
+        async function generateKey() {
+            return await crypto.subtle.generateKey(
+                { name: "AES-GCM", length: 256 },
+                true,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        async function exportKey(key) {
+            const exported = await crypto.subtle.exportKey("raw", key);
+            return btoa(String.fromCharCode(...new Uint8Array(exported)));
+        }
+
+        async function importKey(keyB64) {
+            const binaryDer = Uint8Array.from(atob(keyB64), c => c.charCodeAt(0));
+            return await crypto.subtle.importKey(
+                "raw",
+                binaryDer,
+                "AES-GCM",
+                true,
+                ["encrypt", "decrypt"]
+            );
+        }
+
+        async function encryptData(data, key) {
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encoded = new TextEncoder().encode(JSON.stringify(data));
+            const ciphertext = await crypto.subtle.encrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                encoded
+            );
+
+            // Łączymy IV i Ciphertext
+            const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+            combined.set(iv, 0);
+            combined.set(new Uint8Array(ciphertext), iv.length);
+
+            return btoa(String.fromCharCode(...combined))
+                .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); // Base64URL
+        }
+
+        async function decryptData(encodedData, key) {
+            // Dekodowanie z Base64URL
+            let base64 = encodedData.replace(/-/g, '+').replace(/_/g, '/');
+            while (base64.length % 4) base64 += '=';
+            const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+
+            const iv = binary.slice(0, 12);
+            const ciphertext = binary.slice(12);
+
+            const decrypted = await crypto.subtle.decrypt(
+                { name: "AES-GCM", iv: iv },
+                key,
+                ciphertext
+            );
+
+            return JSON.parse(new TextDecoder().decode(decrypted));
+        }
+
+        // --- GENEROWANIE LOSOWANIA I BUDOWANIE LINKÓW ---
+        async function generateDraw() {
+            const pairs = generateValidPairs();
+            
+            if (!pairs) {
+                showToast("Nie udało się znaleźć wariantu losowania! Sprawdź reguły.", true);
+                return;
+            }
+
+            // Utwórz nowy klucz szyfrujący dla tego losowania
+            const cryptoKey = await generateKey();
+            const exportedKey = await exportKey(cryptoKey);
+
+            // Przygotuj zbiór linków
+            const baseUrl = window.location.origin + window.location.pathname;
+            const links = [];
+
+            for (const giver of PARTICIPANTS) {
+                const payload = {
+                    giver: giver,
+                    receiver: pairs[giver]
+                };
+
+                const encrypted = await encryptData(payload, cryptoKey);
+                // URL zawiera nazwisko uczestnika (dla personalizacji), tajną paczkę danych oraz klucz
+                const link = `${baseUrl}?p=${encodeURIComponent(giver)}&d=${encrypted}&k=${encodeURIComponent(exportedKey)}`;
+                
+                links.push({
+                    giver: giver,
+                    receiver: pairs[giver],
+                    link: link
+                });
+            }
+
+            renderLinks(links);
+            showToast("Nowe losowanie zakończone sukcesem!");
+        }
+
+        // --- RENDEROWANIE PANELU ORGANIZATORA ---
+        function renderLinks(links) {
+            const container = document.getElementById('links-container');
+            const countEl = document.getElementById('participant-count');
+            const statusEl = document.getElementById('draw-status');
+
+            container.innerHTML = '';
+            countEl.textContent = links.length;
+
+            statusEl.textContent = 'Losowanie Aktywne';
+            statusEl.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40';
+
+            links.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 hover:border-amber-500/30 transition';
+
+                const waMessage = encodeURIComponent(`Cześć ${item.giver}! 🎄 Wejdź w poniższy link, aby sprawdzić kogo wylosowałeś/aś w tegorocznym Secret Santa:\n\n${item.link}`);
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center font-bold text-white shadow-md">
+                            ${item.giver.charAt(0)}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-100">${item.giver}</h4>
+                            <span class="text-xs text-slate-400">Gotowy unikalny link</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button onclick="copyToClipboard('${item.link}')" class="flex-1 sm:flex-none px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold rounded-xl border border-amber-500/20 transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> Kopiuj Link
+                        </button>
+                        <a href="https://wa.me/?text=${waMessage}" target="_blank" class="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs font-semibold rounded-xl border border-emerald-500/30 transition flex items-center justify-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- DEKODOWANIE WIDOKU UCZESTNIKA ---
+        async function checkParticipantView() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const person = urlParams.get('p');
+            const data = urlParams.get('d');
+            const key = urlParams.get('k');
+
+            if (person && data && key) {
+                // Pokazujemy widok uczestnika
+                document.getElementById('organizer-view').classList.add('hidden');
+                document.getElementById('participant-view').classList.remove('hidden');
+
+                document.getElementById('participant-name').textContent = person;
+
+                try {
+                    const cryptoKey = await importKey(key);
+                    const decrypted = await decryptData(data, cryptoKey);
+
+                    if (decrypted.giver === person) {
+                        currentDrawData = decrypted;
+                    } else {
+                        throw new Error("Błąd weryfikacji danych");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById('gift-hint').textContent = "⚠️ Nieprawidłowy lub uszkodzony link losowania!";
+                    document.getElementById('interactive-gift').onclick = null;
+                }
+            }
+        }
+
+        // --- ODSŁONIĘCIE WYNIKU Z ANIMACJĄ ---
+        function revealTarget() {
+            if (!currentDrawData) return;
+
+            const giftWrapper = document.getElementById('gift-box-wrapper');
+            const resultCard = document.getElementById('result-card');
+            const targetNameEl = document.getElementById('target-name');
+
+            // Uruchomienie animacji otwierania prezentu
+            giftWrapper.classList.add('gift-open');
+
+            // Efekt Confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            setTimeout(() => {
+                giftWrapper.classList.add('hidden');
+                targetNameEl.textContent = currentDrawData.receiver;
+
+                resultCard.classList.remove('hidden');
+                setTimeout(() => {
+                    resultCard.classList.remove('scale-95', 'opacity-0');
+                    resultCard.classList.add('scale-100', 'opacity-100');
+                }, 50);
+            }, 600);
+        }
+
+        // --- POMOCNICZE TOASTY I KOPIOWANIE ---
+        function copyToClipboard(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Skopiowano link do schowka!");
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if (isError) {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // INIT
+        window.onload = function() {
+            initSnow();
+            checkParticipantView();
+        };
+    </script>
+</body>
+</html>
