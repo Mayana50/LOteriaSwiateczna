@@ -1,1 +1,1 @@
-# LOteriaSwiateczna
+# LoteriaSwiateczna
